@@ -181,7 +181,11 @@ class Autotest
     self.sleep             = 1
     self.testlib           = "test/unit"
     self.find_directories  = ['.']
-    self.unit_diff         = "#{File.expand_path("#{File.dirname(__FILE__)}/../bin/unit_diff")} -u"
+    if RUBY_PLATFORM =~ /mswin|mingw/
+      self.unit_diff       = "unit_diff -u"
+    else
+      self.unit_diff       = "#{File.expand_path("#{File.dirname(__FILE__)}/../bin/unit_diff")} -u"
+    end
 
     add_test_unit_mappings
 
