@@ -97,12 +97,10 @@ class UnitDiff
     footer = data.pop
 
     data.map do |result|
-      break if result.find do |result_line|
-        result_line =~ / expected( but was|, not)/
-      end
+      break if result.any? { |l| l =~ / expected( but was|, not)/ }
 
-      header = result.find do |result_line|
-        result_line =~ /^\(?\s*\d+\) (Failure|Error):/
+      header = result.find do |l|
+        l =~ /^\(?\s*\d+\) (Failure|Error):/
       end
 
       break unless header

@@ -21,14 +21,14 @@ class Autotest
 end
 
 class TestAutotest < Test::Unit::TestCase
-
-  def deny test, msg=nil
+  def refute test, msg=nil
     if msg then
       assert ! test, msg
     else
       assert ! test
     end
-  end unless respond_to? :deny
+  end unless respond_to? :refute
+  alias :deny :refute
 
   RUBY = File.join(Config::CONFIG['bindir'], Config::CONFIG['ruby_install_name']) unless defined? RUBY
 
@@ -284,6 +284,9 @@ Finished in 0.001655 seconds.
     @a.handle_results(s1)
     assert_equal empty, @a.files_to_test, "must stay empty"
 
+    exp = { "tests" => 12, "assertions" => 18, "failures" => 0, "errors" => 0 }
+    assert_equal exp, @a.latest_results
+
     s2 = "
   1) Failure:
 test_fail1(#{@test_class}) [#{@test}:59]:
@@ -301,6 +304,8 @@ test_error2(#{@test_class}):
     expected = { @test => %w( test_fail1 test_fail2 test_error1 test_error2 ) }
     assert_equal expected, @a.files_to_test
     assert @a.tainted
+    exp = { "tests" => 12, "assertions" => 18, "failures" => 2, "errors" => 2 }
+    assert_equal exp, @a.latest_results
 
     @a.handle_results(s1)
     assert_equal empty, @a.files_to_test
@@ -367,7 +372,7 @@ test_error2(#{@test_class}):
       'test/test_fooby.rb' => [ 'test_something1', 'test_something2' ]
     }
 
-    unit_diff = File.expand_path("#{File.dirname(__FILE__)}/../bin/unit_diff")
+    unit_diff = "ruby #{File.expand_path("#{File.dirname(__FILE__)}/../bin/unit_diff")}"
     pre = "#{RUBY} -I.:lib:test -rubygems"
     req = ".each { |f| require f }\""
     post = "| #{unit_diff} -u"
@@ -382,7 +387,7 @@ test_error2(#{@test_class}):
   end
 
   def test_make_test_cmd_uses_bundle_exec_when_given
-    @a.options[:bundle_exec] = true
+    @a.prefix = 'bundle exec '
     f = {
       @test => []
     }
@@ -390,8 +395,8 @@ test_error2(#{@test_class}):
     assert_match /^bundle exec \//,result
   end
 
-  def test_make_test_cmd_uses_bundle_exec_with_parallel_test
-    @a.options[:bundle_exec] = true
+  def test_make_test_cmd_uses_prefix_with_parallel_test
+    @a.prefix = 'bundle exec '
     @a.options[:parallel] = true
     f = {
       'test/a.rb' => [],

@@ -1,4 +1,3 @@
-require 'rubygems'
 $LOAD_PATH << 'lib'
 
 #rake test
@@ -55,10 +54,11 @@ end
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "autotest"
+    gem.name = "autotest-standalone"
     gem.summary = "Autotest, without ZenTest"
     gem.homepage = "http://github.com/grosser/autotest"
-    gem.authors = ["Ryan Davis"]
+    gem.authors = ["Ryan Davis", "Michael Grosser"]
+    gem.files << 'lib/autotest/notify.rb'
   end
 
   Jeweler::GemcutterTasks.new
